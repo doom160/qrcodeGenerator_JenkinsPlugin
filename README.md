@@ -1,0 +1,1 @@
+# qrcodeGenerator_JenkinsPlugin
