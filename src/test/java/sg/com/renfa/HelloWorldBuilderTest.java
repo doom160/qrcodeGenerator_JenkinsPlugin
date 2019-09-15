@@ -15,49 +15,24 @@ public class HelloWorldBuilderTest {
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
 
-    final String name = "Bobby";
+    final String message = "Bobby";
 
     @Test
     public void testConfigRoundtrip() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        project.getBuildersList().add(new HelloWorldBuilder(name));
+        project.getBuildersList().add(new QRCodeBuilder(message,400));
         project = jenkins.configRoundtrip(project);
-        jenkins.assertEqualDataBoundBeans(new HelloWorldBuilder(name), project.getBuildersList().get(0));
-    }
-
-    @Test
-    public void testConfigRoundtripFrench() throws Exception {
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-        HelloWorldBuilder builder = new HelloWorldBuilder(name);
-        builder.setUseFrench(true);
-        project.getBuildersList().add(builder);
-        project = jenkins.configRoundtrip(project);
-
-        HelloWorldBuilder lhs = new HelloWorldBuilder(name);
-        lhs.setUseFrench(true);
-        jenkins.assertEqualDataBoundBeans(lhs, project.getBuildersList().get(0));
+        jenkins.assertEqualDataBoundBeans(new QRCodeBuilder(message,400), project.getBuildersList().get(0));
     }
 
     @Test
     public void testBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        HelloWorldBuilder builder = new HelloWorldBuilder(name);
+        QRCodeBuilder builder = new QRCodeBuilder(message,400);
         project.getBuildersList().add(builder);
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        jenkins.assertLogContains("Hello, " + name, build);
-    }
-
-    @Test
-    public void testBuildFrench() throws Exception {
-
-        FreeStyleProject project = jenkins.createFreeStyleProject();
-        HelloWorldBuilder builder = new HelloWorldBuilder(name);
-        builder.setUseFrench(true);
-        project.getBuildersList().add(builder);
-
-        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        jenkins.assertLogContains("Bonjour, " + name, build);
+        jenkins.assertLogContains("Hello, " + message, build);
     }
 
     @Test
@@ -67,11 +42,11 @@ public class HelloWorldBuilderTest {
         WorkflowJob job = jenkins.createProject(WorkflowJob.class, "test-scripted-pipeline");
         String pipelineScript
                 = "node {\n"
-                + "  greet '" + name + "'\n"
+                + "  qrCode message: '" + message + "', dimension: 400\n"
                 + "}";
         job.setDefinition(new CpsFlowDefinition(pipelineScript, true));
         WorkflowRun completedBuild = jenkins.assertBuildStatusSuccess(job.scheduleBuild2(0));
-        String expectedString = "Hello, " + name + "!";
+        String expectedString = "Hello, " + message + "!";
         jenkins.assertLogContains(expectedString, completedBuild);
     }
 
