@@ -1,4 +1,10 @@
 <?jelly escape-by-default='true'?>
-<div>
-    TODO
-</div>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler">
+    <l:layout title="${it.title} "> 
+        <l:main-panel> 
+            Name: ${it.title} </br>
+            <img src="${it.title}" alt="${it.title}">
+        </l:main-panel>
+    </l:layout>
+</j:jelly>
+

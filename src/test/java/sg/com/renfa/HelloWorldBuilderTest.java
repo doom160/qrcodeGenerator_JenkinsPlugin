@@ -15,20 +15,21 @@ public class HelloWorldBuilderTest {
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
 
-    final String message = "Bobby";
+    final String message = "https://google.com.sg";
+    final String title = "debug";
 
     @Test
     public void testConfigRoundtrip() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        project.getBuildersList().add(new QRCodeBuilder(message,400));
+        project.getBuildersList().add(new QRCodeBuilder(message,title));
         project = jenkins.configRoundtrip(project);
-        jenkins.assertEqualDataBoundBeans(new QRCodeBuilder(message,400), project.getBuildersList().get(0));
+        jenkins.assertEqualDataBoundBeans(new QRCodeBuilder(message,title), project.getBuildersList().get(0));
     }
 
     @Test
     public void testBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        QRCodeBuilder builder = new QRCodeBuilder(message,400);
+        QRCodeBuilder builder = new QRCodeBuilder(message,title);
         project.getBuildersList().add(builder);
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
@@ -42,7 +43,7 @@ public class HelloWorldBuilderTest {
         WorkflowJob job = jenkins.createProject(WorkflowJob.class, "test-scripted-pipeline");
         String pipelineScript
                 = "node {\n"
-                + "  qrCode message: '" + message + "', dimension: 400\n"
+                + "  qrCode title: '" + title + "', message: '" + message + "' \n"
                 + "}";
         job.setDefinition(new CpsFlowDefinition(pipelineScript, true));
         WorkflowRun completedBuild = jenkins.assertBuildStatusSuccess(job.scheduleBuild2(0));
